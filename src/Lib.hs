@@ -15,15 +15,20 @@ import Servant.Client
 import Canonicalize
 
 type MyAPI = "public" :> Get '[JSON] Text
-        :<|> "private" :> BasicAuth "testParam" Text :> (Get '[JSON] Text 
-                                                  :<|> Post '[JSON] Text)
+        :<|> "private" :> BasicAuth "MyRealm" Text :> ("all" :> Get '[JSON] Text
+                                                  :<|> "foo" :> Capture "bar" Text :> (Get '[JSON] Text 
+                                                                                  :<|> Post '[JSON] Text))
 
 myAPI :: Proxy MyAPI
 myAPI = Proxy
 
 getPublicText :: Manager -> BaseUrl -> ClientM Text
-getPrivateText :: BasicAuthData -> Manager -> BaseUrl -> ClientM Text
-postPrivateText :: BasicAuthData -> Manager -> BaseUrl -> ClientM Text
+getPrivateAllText :: BasicAuthData -> Manager -> BaseUrl -> ClientM Text
+getPrivateFooBarText :: BasicAuthData -> Text -> Manager -> BaseUrl -> ClientM Text
+postPrivateFooBarText :: BasicAuthData -> Text -> Manager -> BaseUrl -> ClientM Text
 
-(getPublicText :<|> getPrivateText :<|> postPrivateText) = client (canonicalize myAPI)
+(getPublicText 
+    :<|> getPrivateAllText 
+    :<|> getPrivateFooBarText 
+    :<|> postPrivateFooBarText) = client (canonicalize myAPI)
 
