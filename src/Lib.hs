@@ -21,13 +21,9 @@ type MyAPI = "public" :> Get '[JSON] Text
 myAPI :: Proxy MyAPI
 myAPI = Proxy
 
-
 getPublicText :: Manager -> BaseUrl -> ClientM Text
 getPrivateText :: BasicAuthData -> Manager -> BaseUrl -> ClientM Text
 postPrivateText :: BasicAuthData -> Manager -> BaseUrl -> ClientM Text
-
-canonicalAPI :: Proxy (Canonicalize MyAPI)
-canonicalAPI = canonicalize myAPI
 
 (getPublicText :<|> getPrivateText :<|> postPrivateText) = client (canonicalize myAPI)
 
