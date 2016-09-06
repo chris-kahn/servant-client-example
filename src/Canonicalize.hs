@@ -36,4 +36,4 @@ type family Redex a b c :: * where
   Redex a b first = Canonicalize (first :> b)
 
 canonicalize :: Proxy layout -> Proxy (Canonicalize layout)
-canonicalize proxy = Proxy
+canonicalize Proxy = Proxy
