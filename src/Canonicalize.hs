@@ -25,8 +25,8 @@ import           Servant.API.Sub          ((:>))
 -- i.e distributing all ':>'-separated bits into the subsequent ':<|>'s.
 type family Canonicalize api :: * where
   -- requires UndecidableInstances
-  Canonicalize (a :> (b :<|> c)) = a :> Canonicalize b :<|> a :> Canonicalize c
-  Canonicalize ((a :<|> b) :> c) = a :> Canonicalize c :<|> b :> Canonicalize c
+  Canonicalize (a :> (b :<|> c)) = a :> Canonicalize b :<|> Canonicalize (a :> c)
+  Canonicalize ((a :<|> b) :> c) = a :> Canonicalize c :<|> Canonicalize (b :> c)
   Canonicalize (a :> b)          = Redex b (Canonicalize b) a
   Canonicalize (a :<|> b)        = Canonicalize a :<|> Canonicalize b
   Canonicalize a                 = a
