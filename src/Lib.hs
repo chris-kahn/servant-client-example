@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Lib where
@@ -12,23 +13,29 @@ import GHC.Generics
 import Network.HTTP.Client (Manager, newManager, defaultManagerSettings)
 import Servant.API
 import Servant.Client
+import Servant.Common.Req
 import Canonicalize
 
 type MyAPI = "public" :> Get '[JSON] Text
-        :<|> "private" :> BasicAuth "MyRealm" Text :> ("all" :> Get '[JSON] Text
+        :<|> "private" :> BasicAuth "MyRealm" Text :> (SubAPI1 :<|> SubAPI2)
+            
+type SubAPI1 = "foo" :> (Get '[JSON] Text :<|> Post '[JSON] Text)
+type SubAPI2 = "bar" :> (Get '[JSON] Text :<|> Post '[JSON] Text)
+
+
+type MyAPI2 = Capture "MyRealm" Text :> ("all" :> Get '[JSON] Text
                                                   :<|> "foo" :> Capture "bar" Text :> (Get '[JSON] Text 
                                                                                   :<|> Post '[JSON] Text))
 
 myAPI :: Proxy MyAPI
 myAPI = Proxy
 
-getPublicText :: Manager -> BaseUrl -> ClientM Text
-getPrivateAllText :: BasicAuthData -> Manager -> BaseUrl -> ClientM Text
-getPrivateFooBarText :: BasicAuthData -> Text -> Manager -> BaseUrl -> ClientM Text
-postPrivateFooBarText :: BasicAuthData -> Text -> Manager -> BaseUrl -> ClientM Text
+myAPI2 :: Proxy MyAPI2
+myAPI2 = Proxy
 
-(getPublicText 
-    :<|> getPrivateAllText 
-    :<|> getPrivateFooBarText 
-    :<|> postPrivateFooBarText) = client (canonicalize myAPI)
 
+(getPublic
+    :<|> getPrivateFoo
+    :<|> postPrivateFoo 
+    :<|> getPrivateBar
+    :<|> postPrivateBar) = client (canonicalize myAPI)
