@@ -22,17 +22,8 @@ type MyAPI = "public" :> Get '[JSON] Text
 type SubAPI1 = "foo" :> (Get '[JSON] Text :<|> Post '[JSON] Text)
 type SubAPI2 = "bar" :> (Get '[JSON] Text :<|> Post '[JSON] Text)
 
-
-type MyAPI2 = Capture "MyRealm" Text :> ("all" :> Get '[JSON] Text
-                                                  :<|> "foo" :> Capture "bar" Text :> (Get '[JSON] Text 
-                                                                                  :<|> Post '[JSON] Text))
-
 myAPI :: Proxy MyAPI
 myAPI = Proxy
-
-myAPI2 :: Proxy MyAPI2
-myAPI2 = Proxy
-
 
 (getPublic
     :<|> getPrivateFoo
